@@ -7,6 +7,12 @@ final int START_BUTTON_H = 60;
 final int START_BUTTON_X = 248;
 final int START_BUTTON_Y = 360;
 
+final int idle = 3;
+final int down = 4;
+final int left = 5;
+final int right = 6;
+int groundhogMove = idle;
+
 PImage title, gameover, startNormal, startHovered, restartNormal, restartHovered;
 PImage bg, life;
 PImage groundhogIdle, groundhogDown, groundhogLeft, groundhogRight;
@@ -16,6 +22,8 @@ PImage [] stone = new PImage [2];
 float groundhogX = 320.0;
 float groundhogY = 80;
 float box = 80;
+float speed = box/16;
+float timer = 0;
 
 float soilX = 0;
 float soilY = 160;
@@ -215,30 +223,71 @@ void draw() {
         }
 
 		// Player
-      image(groundhogIdle, groundhogX, groundhogY);
-      if(downPressed){
-        soilY -= box;
-        downPressed = false;
-        if(soilY < 160-20*box){
-          soilY = 160-20*box;
-          groundhogY = groundhogY + box;
-          downPressed = false;
-          if(groundhogY > height-box){
-            groundhogY = height - box;
+      switch(groundhogMove){
+        
+        case idle:
+          image(groundhogIdle,groundhogX,groundhogY);
+          timer = 0;
+          if(downPressed){
+            groundhogMove = down;
+          }else if(leftPressed){
+            groundhogMove = left;
+          }else if(rightPressed){
+            groundhogMove = right;
           }
-        }
-      }else if(leftPressed){
-        groundhogX = groundhogX - box;
-        leftPressed = false;
-        if(groundhogX < 0){
-          groundhogX = 0;
-        }
-      }else if(rightPressed){
-        groundhogX = groundhogX + box;
-        rightPressed = false;
-        if(groundhogX > width-box){
-          groundhogX = width - box;
-        }
+          break;
+        case down:
+          image(groundhogDown,groundhogX,groundhogY);
+          if(soilY <= 160-20*box){
+            groundhogY += speed;
+            timer ++;
+            if(timer == 16){
+              downPressed = false;
+              groundhogMove = idle;
+            }
+            if(groundhogY > height-box){
+              groundhogY = height-box;
+              downPressed = false;
+              groundhogMove = idle;
+            }
+          }else {
+            soilY -= speed;
+            timer ++;
+            if(timer == 16){
+              downPressed = false;
+              groundhogMove = idle;
+            }
+          }
+          break;
+        case left:
+          image(groundhogLeft,groundhogX,groundhogY);
+          groundhogX -= speed;
+          timer ++;
+          if(timer == 16){
+            leftPressed = false;
+            groundhogMove = idle;
+          }
+          if(groundhogX < 0){
+            groundhogX = 0;
+            leftPressed = false;
+            groundhogMove = idle;
+          }
+          break;
+        case right:
+          image(groundhogRight,groundhogX,groundhogY);
+          groundhogX += speed;
+          timer ++;
+          if(timer == 16){
+            rightPressed = false;
+            groundhogMove = idle;
+          }
+          if(groundhogX > width-box){
+            groundhogX = width-box;
+            rightPressed = false;
+            groundhogMove = idle;
+          }
+          break;
+          
       }
 
 		// Health UI
